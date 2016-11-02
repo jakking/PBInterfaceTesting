@@ -2,6 +2,7 @@ import generators.GroceryFuzzGenerator;
 import org.junit.Test;
 import pb_grocery.GroceryQueryProvider;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,10 +12,10 @@ import java.io.IOException;
  */
 public class Testing {
     @Test
-    public void Testing() throws IOException {
+    public void TestingWrites() throws IOException {
         GroceryFuzzGenerator record = new GroceryFuzzGenerator();
         record.nextObject();
-        FileOutputStream output = new FileOutputStream("resources/codedOutput.txt");
+        FileOutputStream output = new FileOutputStream("src/resources/codedOutput.txt");
 
 
         GroceryQueryProvider.InventoryDetails.Builder query = GroceryQueryProvider.InventoryDetails.newBuilder();
@@ -29,5 +30,11 @@ public class Testing {
         query.build().writeTo(output);
 
         output.close();
+    }
+
+    @Test
+    public void testingReads() throws FileNotFoundException {
+        FileInputStream output = new FileInputStream("src/resources/codedOutput.txt");
+        
     }
 }
