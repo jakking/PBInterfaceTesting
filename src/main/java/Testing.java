@@ -28,6 +28,6 @@ public class Testing {
 
         query.build().writeTo(output);
 
-
+        output.close();
     }
 }
