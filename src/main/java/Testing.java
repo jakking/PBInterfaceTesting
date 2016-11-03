@@ -17,10 +17,10 @@ public class Testing {
     @Test
     public void TestingWrites() throws IOException {
         GroceryFuzzGenerator record = new GroceryFuzzGenerator();
-        FileOutputStream output = new FileOutputStream("src/resources/codedOutput.txt");
+        FileOutputStream output = new FileOutputStream("src/resources/codedOutput2.txt");
         GroceryQueryProvider.InventoryDetails.Builder query = GroceryQueryProvider.InventoryDetails.newBuilder();
         for (int i = 0; i < 10; i++) {
-            record.nextObject();
+            record.run();
             query.setStoreID(record.getStoreID());
             query.setDate(record.getDate());
             query.setProductName(record.getProductName());
