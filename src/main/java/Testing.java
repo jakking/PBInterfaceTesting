@@ -31,12 +31,12 @@ public class Testing {
             query.build().writeTo(output);
         }
     }
-
+/*
     @Test
     public void testingReads() throws IOException {
 
-        FileInputStream output = new FileInputStream("src/resources/codedOutput.txt");
-        GroceryQueryProvider.InventoryDetails inv = GroceryQueryProvider.InventoryDetails.parseFrom(output);
+        FileInputStream input = new FileInputStream("src/resources/codedOutput.txt");
+        GroceryQueryProvider.InventoryDetails inv = GroceryQueryProvider.InventoryDetails.parseFrom(input);
         for (int i = 0; i < 10; i++) {
             System.out.println(inv.getStoreID());
             System.out.println(inv.getDate());
@@ -49,4 +49,5 @@ public class Testing {
 
 
     }
+    */
 }
