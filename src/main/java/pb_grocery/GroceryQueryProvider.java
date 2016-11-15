@@ -44,18 +44,26 @@ public final class GroceryQueryProvider extends PronghornStage{
   Boolean isPrimed;
   public void run(){
     if(isWriting){
-      while(Pipe.contentRemaining(transmittedPipe) > 0){
+      while(Pipe.hasContentToRead(transmittedPipe)){
+        int msg = Pipe.takeMsgIdx(transmittedPipe);
         try{
           Pipe.writeFieldToOutputStream(transmittedPipe, out);
         } catch (IOException e) {
           e.printStackTrace();
         }
+        Pipe.releaseReadLock(transmittedPipe);
+        Pipe.confirmLowLevelRead(transmittedPipe, Pipe.sizeOf(transmittedPipe, msg));
+
       }
     } else{
       try{
-        while(in.available() > 0 && Pipe.contentRemaining(transmittedPipe) > 0){
+        while(in.available() > 0 && Pipe.hasRoomForWrite(transmittedPipe)){
+          int size = Pipe.addMsgIdx(transmittedPipe, 0);
           Pipe.readFieldFromInputStream(transmittedPipe, in, in.available());
+          Pipe.publishWrites(transmittedPipe);
+          Pipe.confirmLowLevelWrite(transmittedPipe, size);
         }
+
       } catch (IOException e) {
         e.printStackTrace();
       }
