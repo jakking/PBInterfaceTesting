@@ -31,7 +31,6 @@ public class Testing {
             query.build().writeTo(output);
         }
     }
-/*
     @Test
     public void testingReads() throws IOException {
 
@@ -49,5 +48,4 @@ public class Testing {
 
 
     }
-    */
 }
