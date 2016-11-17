@@ -57,14 +57,16 @@ public final class GroceryQueryProvider extends PronghornStage{
     } else{
       try{
         boolean isOpen = true;
-        while(in.available() > 0 && Pipe.hasRoomForWrite(transmittedPipe) && isOpen){
-          int size = Pipe.addMsgIdx(transmittedPipe, 0);
-          isOpen = Pipe.readFieldFromInputStream(transmittedPipe, in, in.available());
-          Pipe.publishWrites(transmittedPipe);
-          Pipe.confirmLowLevelWrite(transmittedPipe, size);
+          while (in == null){
+          }
+        while(in.available() > 0 && Pipe.hasRoomForWrite(recievedPipe) && isOpen){
+          int size = Pipe.addMsgIdx(recievedPipe, 0);
+          isOpen = Pipe.readFieldFromInputStream(recievedPipe, in, in.available());
+          Pipe.publishWrites(recievedPipe);
+          Pipe.confirmLowLevelWrite(recievedPipe, size);
         }
         if (!isOpen){
-          Pipe.publishEOF(transmittedPipe);
+          Pipe.publishEOF(recievedPipe);
         }
 
       } catch (IOException e) {
@@ -72,11 +74,8 @@ public final class GroceryQueryProvider extends PronghornStage{
       }
     }
   }
-  public GroceryQueryProvider(Boolean isWriting, GraphManager gm, Pipe<RawDataSchema> transmittedPipe){
-    super(gm,
-            (isWriting? transmittedPipe : NONE),
-            (isWriting? NONE: recievedPipe)
-    );
+  public GroceryQueryProvider(Boolean isWriting, GraphManager gm){
+    super(gm, transmittedPipe, NONE);
     this.isWriting = true;
     inPipe.initBuffers();
     enc = new GroceryExampleEncoderStage(gm, inPipe, transmittedPipe);
@@ -95,29 +94,40 @@ public final class GroceryQueryProvider extends PronghornStage{
   }
   public static final class InventoryDetails{
 
-    private GroceryQueryProvider query;
+      public static InventoryDetails messages;
+      public static GroceryQueryProvider query;
+      static {
+          GraphManager gm= new GraphManager();
+          recievedPipe.initBuffers();
+          query = new GroceryQueryProvider(gm, recievedPipe);
+          messages = new InventoryDetails();
+      }
 
+      public static InventoryDetails parseFrom(InputStream in){
+            Builder.query.in = in;
+          return Builder.messages;
+      }
     public String getUnits(){
       StringBuilder str = new StringBuilder();
-      PipeReader.readASCII(query.inPipe, query.Unitsloc, str);
+      PipeReader.readASCII(query.outPipe, query.Unitsloc, str);
       return str.toString();
     }
     public int getRecordID(){
-      return PipeReader.readInt(query.inPipe, query.RecordIDloc);
+      return PipeReader.readInt(query.outPipe, query.RecordIDloc);
     }
     public int getAmount(){
-      return PipeReader.readInt(query.inPipe, query.Amountloc);
+      return PipeReader.readInt(query.outPipe, query.Amountloc);
     }
     public String getProductName(){
       StringBuilder str = new StringBuilder();
-      PipeReader.readASCII(query.inPipe, query.ProductNameloc, str);
+      PipeReader.readASCII(query.outPipe, query.ProductNameloc, str);
       return str.toString();
     }
     public long getDate(){
-      return PipeReader.readLong(query.inPipe, query.Dateloc);
+      return PipeReader.readLong(query.outPipe, query.Dateloc);
     }
     public int getStoreID(){
-      return PipeReader.readInt(query.inPipe, query.StoreIDloc);
+      return PipeReader.readInt(query.outPipe, query.StoreIDloc);
     }
     public static Builder newBuilder(){
       return new Builder();
@@ -135,7 +145,7 @@ public final class GroceryQueryProvider extends PronghornStage{
 
       static {
         GraphManager gm= new GraphManager();
-        query = new GroceryQueryProvider(true, gm, transmittedPipe);
+        query = new GroceryQueryProvider(true, gm);
         messages = new InventoryDetails();
       }
 
