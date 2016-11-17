@@ -18,8 +18,9 @@ public class Testing {
     public void TestingWrites() throws IOException {
         GroceryFuzzGenerator record = new GroceryFuzzGenerator();
         FileOutputStream output = new FileOutputStream("src/resources/codedOutput.txt");
+        PrintWriter regOutput = new PrintWriter("src/resources/regularOutput.txt", "UTF-8");
         GroceryQueryProvider.InventoryDetails.Builder query = GroceryQueryProvider.InventoryDetails.newBuilder();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 6; i++) {
             record.nextObject();
             query.setStoreID(record.getStoreID());
             query.setDate(record.getDate());
@@ -29,6 +30,14 @@ public class Testing {
             query.setUnits(record.getUnits());
 
             query.build().writeTo(output);
+
+            regOutput.print(record.getStoreID());
+            regOutput.print(record.getDate());
+            regOutput.print(record.getProductName());
+            regOutput.print(record.getAmount());
+            regOutput.print(record.getRecordID());
+            regOutput.print(record.getUnits());
+
         }
 
         try {
@@ -37,6 +46,7 @@ public class Testing {
             e.printStackTrace();
         }
         output.close();
+        regOutput.close();
     }
 
     @Test
