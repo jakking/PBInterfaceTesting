@@ -6,6 +6,7 @@ import com.google.protobuf.CodedOutputStream;
 import generators.GroceryFuzzGenerator;
 import org.junit.Test;
 import pb_grocery.GroceryQueryProvider;
+import PBBuffBefore.Grocery;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -17,8 +18,10 @@ public class Testing {
     @Test
     public void TestingWrites() throws IOException {
         GroceryFuzzGenerator record = new GroceryFuzzGenerator();
-        FileOutputStream output = new FileOutputStream("src/resources/codedOutput.txt");
+        FileOutputStream pronghornoutput = new FileOutputStream("src/resources/pronghornoutput.txt");
+        FileOutputStream pbBuffOutput = new FileOutputStream("src/resources/pboutput.txt");
         PrintWriter regOutput = new PrintWriter("src/resources/regularOutput.txt", "UTF-8");
+
         GroceryQueryProvider.InventoryDetails.Builder query = GroceryQueryProvider.InventoryDetails.newBuilder();
         for (int i = 0; i < 6; i++) {
             record.nextObject();
@@ -29,7 +32,7 @@ public class Testing {
             query.setRecordID(record.getRecordID());
             query.setUnits(record.getUnits());
 
-            query.build().writeTo(output);
+            query.build().writeTo(pronghornoutput);
 
             regOutput.print(record.getStoreID());
             regOutput.print(record.getDate());
@@ -45,7 +48,7 @@ public class Testing {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        output.close();
+        pronghornoutput.close();
         regOutput.close();
     }
 
