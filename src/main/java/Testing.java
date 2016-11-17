@@ -6,6 +6,7 @@ import com.google.protobuf.CodedOutputStream;
 import generators.GroceryFuzzGenerator;
 import org.junit.Test;
 import pb_grocery.GroceryQueryProvider;
+import PBBuffBefore.Grocery;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -17,10 +18,13 @@ public class Testing {
     @Test
     public void TestingWrites() throws IOException {
         GroceryFuzzGenerator record = new GroceryFuzzGenerator();
-        FileOutputStream output = new FileOutputStream("src/resources/codedOutput2.txt");
+        FileOutputStream pronghornoutput = new FileOutputStream("src/resources/pronghornoutput.txt");
+        FileOutputStream pbBuffOutput = new FileOutputStream("src/resources/pboutput.txt");
+        PrintWriter regOutput = new PrintWriter("src/resources/regularOutput.txt", "UTF-8");
+
         GroceryQueryProvider.InventoryDetails.Builder query = GroceryQueryProvider.InventoryDetails.newBuilder();
-        for (int i = 0; i < 10; i++) {
-            record.run();
+        for (int i = 0; i < 6; i++) {
+            record.nextObject();
             query.setStoreID(record.getStoreID());
             query.setDate(record.getDate());
             query.setProductName(record.getProductName());
@@ -28,16 +32,37 @@ public class Testing {
             query.setRecordID(record.getRecordID());
             query.setUnits(record.getUnits());
 
-            query.build().writeTo(output);
+            query.build().writeTo(pronghornoutput);
+
+            regOutput.print(record.getStoreID());
+            regOutput.print(record.getDate());
+            regOutput.print(record.getProductName());
+            regOutput.print(record.getAmount());
+            regOutput.print(record.getRecordID());
+            regOutput.print(record.getUnits());
+
         }
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        pronghornoutput.close();
+        regOutput.close();
     }
-/*
+
     @Test
     public void testingReads() throws IOException {
 
         FileInputStream input = new FileInputStream("src/resources/codedOutput.txt");
         GroceryQueryProvider.InventoryDetails inv = GroceryQueryProvider.InventoryDetails.parseFrom(input);
-        for (int i = 0; i < 10; i++) {
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        for (int i = 0; i < 3; i++) {
             System.out.println(inv.getStoreID());
             System.out.println(inv.getDate());
             System.out.println(inv.getProductName());
@@ -49,5 +74,5 @@ public class Testing {
 
 
     }
-    */
+
 }
