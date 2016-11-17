@@ -5,7 +5,7 @@ package pb_grocery;
 import com.ociweb.pronghorn.pipe.*;
 import com.ociweb.pronghorn.stage.PronghornStage;
 import com.ociweb.pronghorn.stage.scheduling.GraphManager;
-import java.util.LinkedList;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.InputStream;
@@ -32,7 +32,7 @@ public final class GroceryQueryProvider extends PronghornStage{
   private final static Pipe<MessageSchemaDynamic> inPipe = new Pipe<MessageSchemaDynamic>(new PipeConfig<MessageSchemaDynamic>(messageSchema));
   private final static Pipe<MessageSchemaDynamic> outPipe = new Pipe<MessageSchemaDynamic>(new PipeConfig<MessageSchemaDynamic>(messageSchema));
   private final static Pipe<RawDataSchema> transmittedPipe = new Pipe<RawDataSchema>(new PipeConfig<RawDataSchema>(RawDataSchema.instance));
-  private final static Pipe<RawDataSchema> recievedPipe = new Pipe<RawDataSchema>(new PipeConfig<RawDataSchema>(RawDataSchema.instance));
+  private final static Pipe<RawDataSchema> receivedPipe = new Pipe<RawDataSchema>(new PipeConfig<RawDataSchema>(RawDataSchema.instance));
   private GroceryExampleEncoderStage enc;
   private GroceryExampleDecoderStage dec;
 
@@ -59,14 +59,14 @@ public final class GroceryQueryProvider extends PronghornStage{
         boolean isOpen = true;
           while (in == null){
           }
-        while(in.available() > 0 && Pipe.hasRoomForWrite(recievedPipe) && isOpen){
-          int size = Pipe.addMsgIdx(recievedPipe, 0);
-          isOpen = Pipe.readFieldFromInputStream(recievedPipe, in, in.available());
-          Pipe.publishWrites(recievedPipe);
-          Pipe.confirmLowLevelWrite(recievedPipe, size);
+        while(in.available() > 0 && Pipe.hasRoomForWrite(receivedPipe) && isOpen){
+          int size = Pipe.addMsgIdx(receivedPipe, 0);
+          isOpen = Pipe.readFieldFromInputStream(receivedPipe, in, in.available());
+          Pipe.publishWrites(receivedPipe);
+          Pipe.confirmLowLevelWrite(receivedPipe, size);
         }
         if (!isOpen){
-          Pipe.publishEOF(recievedPipe);
+          Pipe.publishEOF(receivedPipe);
         }
 
       } catch (IOException e) {
@@ -76,7 +76,7 @@ public final class GroceryQueryProvider extends PronghornStage{
   }
   public GroceryQueryProvider(Boolean isWriting, GraphManager gm){
     super(gm, transmittedPipe, NONE);
-    this.isWriting = true;
+    this.isWriting = isWriting;
     inPipe.initBuffers();
     enc = new GroceryExampleEncoderStage(gm, inPipe, transmittedPipe);
     scheduler = new ThreadPerStageScheduler(gm);
@@ -98,8 +98,8 @@ public final class GroceryQueryProvider extends PronghornStage{
       public static GroceryQueryProvider query;
       static {
           GraphManager gm= new GraphManager();
-          recievedPipe.initBuffers();
-          query = new GroceryQueryProvider(gm, recievedPipe);
+          receivedPipe.initBuffers();
+          query = new GroceryQueryProvider(gm, receivedPipe);
           messages = new InventoryDetails();
       }
 
