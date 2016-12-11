@@ -52,11 +52,11 @@ public final class GroceryQueryProvider extends PronghornStage{
         }
         Pipe.releaseReadLock(transmittedPipe);
         Pipe.confirmLowLevelRead(transmittedPipe, Pipe.sizeOf(transmittedPipe, msg));
-
       }
     } else{
       try{
         boolean isOpen = true;
+
           while (in == null){
           }
         while(in.available() > 0 && Pipe.hasRoomForWrite(receivedPipe) && isOpen){
@@ -91,42 +91,111 @@ public final class GroceryQueryProvider extends PronghornStage{
     dec = new GroceryExampleDecoderStage(gm, transmittedPipe, outPipe);
     scheduler = new ThreadPerStageScheduler(gm);
     scheduler.startup();
+    isPrimed = false;
   }
   public static final class InventoryDetails{
 
       public static InventoryDetails messages;
       public static GroceryQueryProvider query;
       static {
-          GraphManager gm= new GraphManager();
+          GraphManager gm = new GraphManager();
           receivedPipe.initBuffers();
           query = new GroceryQueryProvider(gm, receivedPipe);
           messages = new InventoryDetails();
       }
+      private int gettersAccessed = 0;
 
       public static InventoryDetails parseFrom(InputStream in){
-            Builder.query.in = in;
+            query.in = in;
           return Builder.messages;
       }
     public String getUnits(){
+      if (!query.isPrimed){
+        while(!PipeReader.tryReadFragment(outPipe)){
+        }
+        query.isPrimed = true;
+      }
       StringBuilder str = new StringBuilder();
       PipeReader.readASCII(query.outPipe, query.Unitsloc, str);
+      gettersAccessed++;
+      if (gettersAccessed == 6) {
+        query.isPrimed = false;
+        gettersAccessed = 0;
+        PipeReader.releaseReadLock(outPipe);
+      }
       return str.toString();
     }
     public int getRecordID(){
+      if (!query.isPrimed){
+        while(!PipeReader.tryReadFragment(outPipe)){
+        }
+        query.isPrimed = true;
+      }
+      gettersAccessed++;
+      if (gettersAccessed == 6) {
+        query.isPrimed = false;
+        gettersAccessed = 0;
+        PipeReader.releaseReadLock(outPipe);
+      }
       return PipeReader.readInt(query.outPipe, query.RecordIDloc);
     }
     public int getAmount(){
+      if (!query.isPrimed){
+        while(!PipeReader.tryReadFragment(outPipe)){
+        }
+        query.isPrimed = true;
+      }
+      gettersAccessed++;
+      if (gettersAccessed == 6) {
+        query.isPrimed = false;
+        gettersAccessed = 0;
+        PipeReader.releaseReadLock(outPipe);
+      }
       return PipeReader.readInt(query.outPipe, query.Amountloc);
     }
     public String getProductName(){
+      if (!query.isPrimed){
+        while(!PipeReader.tryReadFragment(outPipe)){
+        }
+        query.isPrimed = true;
+      }
       StringBuilder str = new StringBuilder();
       PipeReader.readASCII(query.outPipe, query.ProductNameloc, str);
+      gettersAccessed++;
+      if (gettersAccessed == 6) {
+        query.isPrimed = false;
+        gettersAccessed = 0;
+        PipeReader.releaseReadLock(outPipe);
+      }
       return str.toString();
     }
     public long getDate(){
+      if (!query.isPrimed){
+        while(!PipeReader.tryReadFragment(outPipe)){
+        }
+        query.isPrimed = true;
+      }
+      gettersAccessed++;
+      if (gettersAccessed == 6) {
+        query.isPrimed = false;
+        gettersAccessed = 0;
+        PipeReader.releaseReadLock(outPipe);
+      }
       return PipeReader.readLong(query.outPipe, query.Dateloc);
     }
     public int getStoreID(){
+
+      if (!query.isPrimed){
+        while(!PipeReader.tryReadFragment(outPipe)){
+        }
+        query.isPrimed = true;
+      }
+      gettersAccessed++;
+      if (gettersAccessed == 6) {
+        query.isPrimed = false;
+        gettersAccessed = 0;
+        PipeReader.releaseReadLock(outPipe);
+      }
       return PipeReader.readInt(query.outPipe, query.StoreIDloc);
     }
     public static Builder newBuilder(){
@@ -144,7 +213,7 @@ public final class GroceryQueryProvider extends PronghornStage{
       public static GroceryQueryProvider query;
 
       static {
-        GraphManager gm= new GraphManager();
+        GraphManager gm = new GraphManager();
         query = new GroceryQueryProvider(true, gm);
         messages = new InventoryDetails();
       }
@@ -162,35 +231,40 @@ public final class GroceryQueryProvider extends PronghornStage{
       }
       public void setRecordID(int RecordID) {
         if (!query.isPrimed){
-          PipeWriter.tryWriteFragment(inPipe, 0);
+          while(PipeWriter.tryWriteFragment(inPipe, 0)){
+          }
           query.isPrimed = true;
         }
         PipeWriter.writeInt(query.inPipe, query.RecordIDloc, RecordID);
       }
       public void setAmount(int Amount) {
         if (!query.isPrimed){
-          PipeWriter.tryWriteFragment(inPipe, 0);
+          while(!PipeWriter.tryWriteFragment(inPipe, 0)){
+          }
           query.isPrimed = true;
         }
         PipeWriter.writeInt(query.inPipe, query.Amountloc, Amount);
       }
       public void setProductName(String ProductName) {
         if (!query.isPrimed){
-          PipeWriter.tryWriteFragment(inPipe, 0);
+          while(!PipeWriter.tryWriteFragment(inPipe, 0)){
+          }
           query.isPrimed = true;
         }
         PipeWriter.writeASCII(query.inPipe, query.ProductNameloc, ProductName);
       }
       public void setDate(long Date) {
         if (!query.isPrimed){
-          PipeWriter.tryWriteFragment(inPipe, 0);
+          while(!PipeWriter.tryWriteFragment(inPipe, 0)){
+          }
           query.isPrimed = true;
         }
         PipeWriter.writeLong(query.inPipe, query.Dateloc, Date);
       }
       public void setStoreID(int StoreID) {
         if (!query.isPrimed){
-          PipeWriter.tryWriteFragment(inPipe, 0);
+          while(!PipeWriter.tryWriteFragment(inPipe, 0)){
+          }
           query.isPrimed = true;
         }
         PipeWriter.writeInt(query.inPipe, query.StoreIDloc, StoreID);

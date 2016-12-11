@@ -23,7 +23,7 @@ public class Testing {
         PrintWriter regOutput = new PrintWriter("src/resources/regularOutput.txt", "UTF-8");
 
         GroceryQueryProvider.InventoryDetails.Builder query = GroceryQueryProvider.InventoryDetails.newBuilder();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 100; i++) {
             record.nextObject();
             query.setStoreID(record.getStoreID());
             query.setDate(record.getDate());
@@ -41,10 +41,18 @@ public class Testing {
             regOutput.print(record.getRecordID());
             regOutput.print(record.getUnits());
 
-        }
+            if (i==0){
+                System.out.println(record.getStoreID());
+                System.out.println(record.getDate());
+                System.out.println(record.getProductName());
+                System.out.println(record.getAmount());
+                System.out.println(record.getRecordID());
+                System.out.println(record.getUnits());
+            }
 
+        }
         try {
-            Thread.sleep(3000);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -55,13 +63,8 @@ public class Testing {
     @Test
     public void testingReads() throws IOException {
 
-        FileInputStream input = new FileInputStream("src/resources/codedOutput.txt");
+        FileInputStream input = new FileInputStream("src/resources/pronghornoutput.txt");
         GroceryQueryProvider.InventoryDetails inv = GroceryQueryProvider.InventoryDetails.parseFrom(input);
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         for (int i = 0; i < 3; i++) {
             System.out.println(inv.getStoreID());
             System.out.println(inv.getDate());
